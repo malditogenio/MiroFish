@@ -103,6 +103,18 @@ else:
         print(f"已加载环境配置: {_backend_env}")
 
 
+
+def _reasoning_model_config(model_name):
+    """Config for reasoning models: no fixed temperature, optional reasoning_effort."""
+    name = (model_name or "").strip().lower()
+    if not name.startswith(("gpt-5", "gpt-6", "o1", "o3", "o4")):
+        return None
+    cfg = {}
+    effort = (os.environ.get("LLM_REASONING_EFFORT") or "").strip().lower()
+    if effort:
+        cfg["reasoning_effort"] = effort
+    return cfg
+
 class MaxTokensWarningFilter(logging.Filter):
     """过滤掉 camel-ai 关于 max_tokens 的警告（我们故意不设置 max_tokens，让模型自行决定）"""
     
@@ -1034,6 +1046,7 @@ def create_model(config: Dict[str, Any], use_boost: bool = False):
     return ModelFactory.create(
         model_platform=ModelPlatformType.OPENAI,
         model_type=llm_model,
+        model_config_dict=_reasoning_model_config(llm_model),
     )
 
 

@@ -50,6 +50,18 @@ else:
 import re
 
 
+
+def _reasoning_model_config(model_name):
+    """Config for reasoning models: no fixed temperature, optional reasoning_effort."""
+    name = (model_name or "").strip().lower()
+    if not name.startswith(("gpt-5", "gpt-6", "o1", "o3", "o4")):
+        return None
+    cfg = {}
+    effort = (os.environ.get("LLM_REASONING_EFFORT") or "").strip().lower()
+    if effort:
+        cfg["reasoning_effort"] = effort
+    return cfg
+
 class UnicodeFormatter(logging.Formatter):
     """自定义格式化器，将 Unicode 转义序列转换为可读字符"""
     
@@ -457,6 +469,7 @@ class TwitterSimulationRunner:
         return ModelFactory.create(
             model_platform=ModelPlatformType.OPENAI,
             model_type=llm_model,
+            model_config_dict=_reasoning_model_config(llm_model),
         )
     
     def _get_active_agents_for_round(
