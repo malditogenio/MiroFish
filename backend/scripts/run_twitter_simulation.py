@@ -448,7 +448,7 @@ class TwitterSimulationRunner:
         # 优先从 .env 读取配置
         llm_api_key = os.environ.get("LLM_API_KEY", "")
         llm_base_url = os.environ.get("LLM_BASE_URL", "")
-        llm_model = os.environ.get("LLM_MODEL_NAME", "")
+        llm_model = os.environ.get("OASIS_LLM_MODEL_NAME") or os.environ.get("LLM_MODEL_NAME", "")
         
         # 如果 .env 中没有，则使用 config 作为备用
         if not llm_model:

@@ -1024,7 +1024,7 @@ def create_model(config: Dict[str, Any], use_boost: bool = False):
         # 使用通用配置
         llm_api_key = os.environ.get("LLM_API_KEY", "")
         llm_base_url = os.environ.get("LLM_BASE_URL", "")
-        llm_model = os.environ.get("LLM_MODEL_NAME", "")
+        llm_model = os.environ.get("OASIS_LLM_MODEL_NAME") or os.environ.get("LLM_MODEL_NAME", "")
         config_label = "[通用LLM]"
     
     # 如果 .env 中没有模型名，则使用 config 作为备用
