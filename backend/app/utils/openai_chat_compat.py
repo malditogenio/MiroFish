@@ -10,11 +10,25 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 
+import os
+
+REASONING_PREFIXES = ("gpt-5", "gpt-6", "o1", "o3", "o4")
+
+
 def is_gpt5_family(model: Optional[str]) -> bool:
-    """Return True when model belongs to GPT-5 family aliases/snapshots."""
+    """Return True for reasoning models (GPT-5/GPT-6 families and o-series).
+
+    These models reject a fixed temperature and use max_completion_tokens.
+    """
     if not model:
         return False
-    return model.strip().lower().startswith("gpt-5")
+    return model.strip().lower().startswith(REASONING_PREFIXES)
+
+
+def get_reasoning_effort() -> Optional[str]:
+    """Read LLM_REASONING_EFFORT (e.g. "high"); empty means do not send it."""
+    value = (os.environ.get("LLM_REASONING_EFFORT") or "").strip().lower()
+    return value or None
 
 
 def create_chat_completion(
@@ -47,6 +61,10 @@ def create_chat_completion(
 
     if temperature is not None and not gpt5_family:
         kwargs["temperature"] = temperature
+
+    reasoning_effort = get_reasoning_effort()
+    if gpt5_family and reasoning_effort:
+        kwargs["reasoning_effort"] = reasoning_effort
 
     if max_tokens is not None:
         if gpt5_family:
